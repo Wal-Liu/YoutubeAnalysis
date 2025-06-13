@@ -1,0 +1,10 @@
+.idea/
+DockerCompose/init/.cache/
+DockerCompose/init/.local/
+DockerCompose/spark-apps/.local/
+DockerCompose/spark-apps/.cache/
+DockerCompose/spark-apps/data/
+DockerCompose/ivy/
+Google Data/
+TikTok Data/
+Processing Data/

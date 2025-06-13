@@ -1,0 +1,1 @@
+/opt/spark/bin/spark-submit --conf spark.jars.ivy=/opt/spark-apps/.ivy2 --packages io.delta:delta-core_2.12:2.4.0,org.apache.hadoop:hadoop-aws:3.3.2 /opt/spark-apps/ingest.py
