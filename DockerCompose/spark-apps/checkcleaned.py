@@ -22,16 +22,14 @@ client.execute("CREATE DATABASE IF NOT EXISTS cleaned")
 # Tạo bảng
 create_table_query = """
 CREATE TABLE IF NOT EXISTS cleaned.youtube_clean (
-    timestamp String,
-    date String,
-    time_of_day String,
-    title String,
-    video_url String,
+    clean_timestamp String,
+    clean_title String,
+    titleUrl String,
     channel_name String,
     channel_url String,
-    watch_duration_sec String
+    watching_time String
 ) ENGINE = MergeTree()
-ORDER BY timestamp
+ORDER BY clean_timestamp
 """
 client.execute(create_table_query)
 
@@ -42,12 +40,20 @@ for c in silver_df.columns:
     silver_df = silver_df.withColumn(c, col(c).cast("string"))
 
 # Sau đó chuyển sang Pandas
-pandas_df = silver_df.fillna('').toPandas()
+pandas_df = silver_df.fillna('').toPandas().astype(str)
 
-# Với Pandas DataFrame (nếu muốn chắc chắn)
-pandas_df = pandas_df.astype(str)
 
-client.insert_dataframe('INSERT INTO cleaned.youtube_clean VALUES', pandas_df)
+for col in pandas_df.columns:
+    print(f"{col}: {set(type(x) for x in pandas_df[col])}")
+
+print(pandas_df.shape)
+
+
+data = [tuple(row) for row in pandas_df.values]
+client.execute('INSERT INTO cleaned.youtube_clean VALUES', data)
+
+
+# client.insert_dataframe('INSERT INTO cleaned.youtube_clean VALUES', pandas_df)
+
 print(pandas_df.head(10))
-
 print("Cleaned YouTube history data saved to ClickHouse.")

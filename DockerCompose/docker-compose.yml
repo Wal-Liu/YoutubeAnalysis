@@ -82,8 +82,9 @@ services:
       - clickhouse_data:/var/lib/clickhouse
 
   superset:
-    image: apache/superset
-    container_name: superset
+    build:
+      context: ./superset
+      dockerfile: Dockerfile
     ports:
       - "8088:8088"
     depends_on:
