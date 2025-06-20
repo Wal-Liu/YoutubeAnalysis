@@ -4,7 +4,7 @@ from pyspark.sql.functions import col, date_format
 import requests
 # Tạo SparkSession
 spark = SparkSession.builder \
-    .appName("YouTubeHistoryCleanCheck") \
+    .appName("YouTube History Clean Check") \
     .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000") \
     .config("spark.hadoop.fs.s3a.access.key", "admin") \
     .config("spark.hadoop.fs.s3a.secret.key", "admin123") \
@@ -19,6 +19,8 @@ spark = SparkSession.builder \
 client = Client(host='clickhouse', port=9000,user='admin', password='admin123')
 
 # Tạo database và table
+
+client.execute("DROP DATABASE IF EXISTS cleaned")
 client.execute("CREATE DATABASE IF NOT EXISTS cleaned")
 
 create_table_query = """
@@ -90,7 +92,7 @@ with requests.Session() as session:
 
     # 4. Tạo database connection
     database_payload = {
-        "database_name": "ClickHouse_cleaned_v2",
+        "database_name": "ClickHouse_Youtube_Cleaned",
         "sqlalchemy_uri": "clickhousedb://admin:admin123@clickhouse:8123/cleaned",
         "engine_parameters": {},
         "parameters": {},

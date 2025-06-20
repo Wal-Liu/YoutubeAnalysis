@@ -33,14 +33,11 @@ def convert_element(x):
 client = Client(host='clickhouse', port=9000,user='admin', password='admin123')
 
 # Tạo database và cá dim fact table
+client.execute("DROP DATABASE IF EXISTS stage")
 client.execute("CREATE DATABASE IF NOT EXISTS stage")
 
 # 2. Tạo bảng dimTime
 client.execute("""
-DELETE FROM stage.dimTime WHERE 1=1
-""")
-client.execute("""
-
 CREATE TABLE IF NOT EXISTS stage.dimTime (
     timekey String,
     date Date,
@@ -57,9 +54,6 @@ ORDER BY timekey
 
 # 3. Tạo bảng dimChannel
 client.execute("""
-DELETE FROM stage.dimChannel WHERE 1=1
-""")
-client.execute("""
 CREATE TABLE IF NOT EXISTS stage.dimChannel (
     channel_ID String,
     channel_Name String,
@@ -70,9 +64,6 @@ ORDER BY channel_ID
 
 # 4. Tạo bảng dimVideo
 client.execute("""
-DELETE FROM stage.dimVideo WHERE 1=1
-""")
-client.execute("""
 CREATE TABLE IF NOT EXISTS stage.dimVideo (
     video_ID String,
     video_Title String,
@@ -82,9 +73,6 @@ ORDER BY video_ID
 """)
 
 # 5. Tạo bảng factHistory
-client.execute("""
-DELETE FROM stage.factHistory WHERE 1=1
-""")
 client.execute("""
 CREATE TABLE IF NOT EXISTS stage.factHistory (
     id String,

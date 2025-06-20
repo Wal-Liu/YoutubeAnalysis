@@ -5,7 +5,7 @@ from pyspark.sql.window import Window
 
 # Tạo SparkSession
 spark = SparkSession.builder \
-    .appName("YouTubeHistoryClean") \
+    .appName("YouTube History Clean") \
     .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000") \
     .config("spark.hadoop.fs.s3a.access.key", "admin") \
     .config("spark.hadoop.fs.s3a.secret.key", "admin123") \
