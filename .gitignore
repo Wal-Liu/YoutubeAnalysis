@@ -8,3 +8,9 @@ DockerCompose/ivy/
 Google Data/
 TikTok Data/
 Processing Data/
+DockerCompose/airflow/logs/
+DockerCompose/airflow/plugins/
+DockerCompose/airflow/airflow-webserver.pid/
+DockerCompose/airflow/airflow-worker.pid/
+DockerCompose/airflow/airflow.cfg/
+DockerCompose/airflow/webserver_config.py/

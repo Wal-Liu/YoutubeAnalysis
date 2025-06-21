@@ -119,7 +119,78 @@ services:
         sleep infinity
       "
 
+  airflow-redis:
+    image: redis:latest
+    container_name: airflow-redis
+    ports:
+      - "6379:6379"
+
+  airflow-webserver:
+    image: apache/airflow:2.7.1
+    container_name: airflow-webserver
+    depends_on:
+      - airflow-redis
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin@postgres:5432/superset
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://admin:admin@postgres:5432/superset
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow-redis:6379/0
+      AIRFLOW__CORE__FERNET_KEY: 'qRKvF-3zfLhGwVTIUOBsR2Bogv-4dQ7FdxsV4Bls-Kc='
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    ports:
+      - "8082:8080" # Airflow Web UI
+    volumes:
+      - ./airflow:/opt/airflow
+    command: >
+      bash -c "
+        airflow db migrate &&
+        airflow users create --email email --firstname firstname --lastname lastname --password admin --role Admin --username admin &&
+        airflow standalone &&
+        airflow dags trigger pipeline
+      "
+
+  airflow-scheduler:
+    image: apache/airflow:2.7.1
+    container_name: airflow-scheduler
+    depends_on:
+      - airflow-webserver
+      - airflow-redis
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin@postgres:5432/superset
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://admin:admin@postgres:5432/superset
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow-redis:6379/0
+      AIRFLOW__CORE__FERNET_KEY: 'YOUR_FERNET_KEY_HERE'
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    volumes:
+      - ./airflow:/opt/airflow
+    command: scheduler
+
+  airflow-worker:
+    image: apache/airflow:2.7.1
+    container_name: airflow-worker
+    depends_on:
+      - airflow-webserver
+      - airflow-redis
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin@postgres:5432/superset
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://admin:admin@postgres:5432/superset
+      AIRFLOW__CELERY__BROKER_URL: redis://airflow-redis:6379/0
+      AIRFLOW__CORE__FERNET_KEY: 'YOUR_FERNET_KEY_HERE'
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    volumes:
+      - ./airflow:/opt/airflow
+    command: celery worker
+
 volumes:
   pg_data:
   minio_data:
   clickhouse_data:
+  airflow_pgdata:
