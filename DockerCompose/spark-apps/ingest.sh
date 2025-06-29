@@ -1,1 +1,0 @@
-/opt/spark/bin/spark-submit --master spark://spark-master:7077 --deploy-mode client --num-executors 2 --executor-cores 2 --executor-memory 2G --driver-memory 1G --conf spark.jars.ivy=/opt/spark-apps/.ivy2 --packages io.delta:delta-core_2.12:2.4.0,org.apache.hadoop:hadoop-aws:3.3.2 /opt/spark-apps/ingest.py
