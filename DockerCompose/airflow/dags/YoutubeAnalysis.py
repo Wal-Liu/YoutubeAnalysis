@@ -3,7 +3,7 @@ from airflow.operators.bash import BashOperator
 from datetime import datetime
 import subprocess
 
-default_args = {
+default_arg = {
     'owner': 'airflow',
     'start_date': datetime(2025, 6, 26),
     'retries': 1,
@@ -11,7 +11,7 @@ default_args = {
 
 with DAG(
     'youtube_etl_pipeline',
-    default_args=default_args,
+    default_args=default_arg,
     description='Pipeline ETL YouTube: ingest -> clean -> checkcleaned -> transform',
     schedule_interval='@daily',
     catchup=False,
@@ -37,5 +37,4 @@ with DAG(
         bash_command='docker exec spark-submit bash /opt/spark-apps/youtube-script/transform.sh'
     )
 
-    # Định nghĩa thứ tự chạy
     task_ingest >> task_clean >> task_checkcleaned >> task_transform

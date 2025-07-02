@@ -1,15 +1,14 @@
 version: '3.9'
-
 services:
   postgres:
-    image: postgres:14
+    image: postgres:17
     container_name: postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: superset
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
 
@@ -55,7 +54,6 @@ services:
         sleep infinity
       "
       
-
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -118,17 +116,14 @@ services:
         python3 create_bucket.py &&
         sleep infinity
       "
-
+ 
   airflow:
-    image: apache/airflow:2.7.1
+    image: apache/airflow
     container_name: airflow
-    restart: always
     environment:
+      AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin@postgres:5432/airflow
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin@postgres:5432/superset
-      AIRFLOW__CORE__FERNET_KEY: 'qRKvF-3zfLhGwVTIUOBsR2Bogv-4dQ7FdxsV4Bls-Kc='
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     volumes:
       - ./airflow:/opt/airflow
     ports:
@@ -137,9 +132,11 @@ services:
       - postgres
     command: >
       bash -c "
-      airflow db init &&
+      airflow db migrate &&
       airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true &&
-      airflow webserver
+      airflow standalone && 
+      airflow webserver &&
+      airflow scheduler
       "
 
 volumes:
